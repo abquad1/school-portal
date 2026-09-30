@@ -1,0 +1,127 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+enum Classes {
+  JSS1
+  JSS2
+  JSS3
+  SS1
+  SS2
+  SS3
+}
+
+enum Departments {
+  SCIENCE
+  COMMERCIAL
+  ART
+}
+
+enum Role {
+  STUDENT
+  TEACHER
+}
+
+enum TermName {
+  FIRST
+  SECOND
+  THIRD
+}
+
+model User {
+  id String @id @default(uuid())
+  email String @unique
+  password String
+  role Role
+  student Student?
+  teacher Teacher?
+
+  createdAt DateTime @default(now()) 
+  updatedAt DateTime @updatedAt 
+}
+
+model Student {
+  id String @id @default(uuid())
+  firstName String
+  middleName String
+  lastName String
+  class Classes
+  department Departments?
+  graduated Boolean @default(false)
+  enrollment Enrollment[]
+  userId String @unique
+  user User @relation(fields: [userId], references: [id])
+
+}
+
+model Teacher {
+  id String @id @default(uuid())
+  firstName String
+  lastName String
+  teacherId String @unique
+  enrollment Enrollment[]
+  userId String @unique
+  user User @relation(fields: [userId], references: [id])
+  
+}
+
+
+model Course {
+  id String @id @default(uuid())
+  title String @unique
+  enrollment Enrollment[]
+  department Departments?
+}
+
+model Enrollment {
+  id String @id @default(uuid())
+  studentId String
+  teacherId String
+  courseId String
+  sessionTermId String
+  
+  result Result?
+
+  student Student @relation(fields: [studentId], references: [id])
+  teacher Teacher @relation(fields: [teacherId], references: [id])
+  course Course @relation(fields: [courseId], references: [id])
+  sessionTerm SessionTerm @relation(fields: [sessionTermId], references: [id])
+  
+  @@unique([studentId, courseId, sessionTermId])
+}
+
+model Result {
+  id String @id @default(uuid())
+  enrollmentId String @unique
+  assignment Int
+  test Int
+  exam Int
+  enrollment Enrollment @relation(fields: [enrollmentId], references: [id])
+}
+
+model AcademicSession {
+  id String @id @default(uuid())
+  name String @unique
+  terms SessionTerm[]
+}
+
+model SessionTerm {
+  id String @id @default(uuid())
+  sessionId String
+  session AcademicSession @relation(fields: [sessionId], references: [id])
+
+  term TermName
+  isCurrent Boolean @default(false)
+  enrollment Enrollment[]
+
+  @@unique([sessionId,term])
+}
