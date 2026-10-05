@@ -3,6 +3,10 @@ import "dotenv/config";
 import express from "express";
 import authRoutes from "./routes/auth-routes.js";
 import userRoutes from "./routes/user-routes.js";
+import courseRoutes from "./routes/course-routes.js";
+import sessionRoutes from "./routes/session-routes.js";
+import resultRoutes from "./routes/result-routes.js";
+import adminRoutes from "./routes/admin-routes.js";
 
 const { connectDB, disconnectDB } = await import("./config/db.js");
 connectDB();
@@ -13,6 +17,10 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use("/api/auth", authRoutes);
 app.use("/api", userRoutes);
+app.use("/api/course", courseRoutes);
+app.use("/api/session", sessionRoutes);
+app.use("/api/result", resultRoutes);
+app.use("/api/admin", adminRoutes);
 
 const PORT = 5001;
 const server = app.listen(PORT, () => {

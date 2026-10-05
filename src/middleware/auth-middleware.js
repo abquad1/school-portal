@@ -22,9 +22,10 @@ export const AuthMiddleware = async (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    console.log("decoded:", decoded);
+
     const user = await prisma.user.findUnique({
       where: { id: decoded.id },
+      include: { student: true, teacher: true },
     });
 
     if (!user) {
@@ -37,9 +38,9 @@ export const AuthMiddleware = async (req, res, next) => {
     req.user = user;
     next();
   } catch (error) {
-    res.status(500).json({
+    res.status(401).json({
       success: false,
-      message: error.message,
+      message: "Invalid or expired token",
     });
   }
 };
